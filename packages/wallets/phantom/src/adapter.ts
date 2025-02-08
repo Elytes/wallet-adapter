@@ -44,7 +44,7 @@ interface PhantomWallet extends EventEmitter<PhantomWalletEvents> {
         options?: SendOptions
     ): Promise<{ signature: TransactionSignature }>;
     signMessage(message: Uint8Array): Promise<{ signature: Uint8Array }>;
-    connect(): Promise<void>;
+    connect({onlyIfTrusted}?: {onlyIfTrusted?: boolean}): Promise<void>;
     disconnect(): Promise<void>;
 }
 
@@ -120,7 +120,7 @@ export class PhantomWalletAdapter extends BaseMessageSignerWalletAdapter {
         }
     }
 
-    async connect(): Promise<void> {
+    async connect({onlyIfTrusted}: {onlyIfTrusted?: boolean} = {onlyIfTrusted: false}): Promise<void> {
         try {
             if (this.connected || this.connecting) return;
 
@@ -142,7 +142,7 @@ export class PhantomWalletAdapter extends BaseMessageSignerWalletAdapter {
 
             if (!wallet.isConnected) {
                 try {
-                    await wallet.connect();
+                    await wallet.connect({onlyIfTrusted});
                 } catch (error: any) {
                     throw new WalletConnectionError(error?.message, error);
                 }
